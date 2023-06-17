@@ -1,0 +1,37 @@
+.view {
+    height: 300px;
+    width: 98%;
+    display: flex;
+    justify-content: space-between;
+    flex-direction: row;
+}
+
+.graph {
+    width:50%;
+    background-color: rgba(0, 0, 0, 0.04);
+    margin: 10;
+}
+
+.graph-container {
+    display: flex;
+    justify-content: space-around;
+    flex-direction: column;
+    align-items: center;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+}
+
+.button {
+    margin: 20px 100px 20px 100px;
+    width: 200px;
+    height: 60px;
+    border-radius: 5px;
+    border: none;
+    background-color: #4CAF50;
+    color: white;
+    align-self: end;
+    font-size: 30px;
+}
