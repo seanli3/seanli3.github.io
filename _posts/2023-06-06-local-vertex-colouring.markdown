@@ -15,18 +15,38 @@ I hope you like it!
 <link rel="stylesheet" href="{{ site.baseurl }}/assets/css/post_lvc.css">
 
 <div markdown="0">
-  <div class="container">
-    <div class="graph-container"></div>
-    <button id="nextBtn" class="button">Next</button>
-    <div class="slider" hidden>
-      <a href="#0" class="next control">Next</a>
-      <a href="#0" class="prev control">Prev</a>
-     <ul></ul>
-      <div class="slider_option">
-        <Button class="btn">Autoplay</Button>
-      </div>
+    <div id="graph-selection">
+      <h3>
+      Start by adding a graph, 
+      Number of nodes: <input type="number" min=1 max=10 value=5/>
+      </h3>
+      <hr/>
+      <ul>
+        <li>
+          <button class="button">Random graph</button> 
+        </li>
+        <li>
+          <button class="button">Balanced tree</button> 
+        </li>
+        <li>
+          <button class="button">Complete graph</button> 
+        </li>
+        <li>
+          <button class="button">Cycle graph</button> 
+        </li>
+        <li>
+          <button class="button">Full Rary tree</button> 
+        </li>
+        <li>
+          <button class="button">Karate club</button> 
+        </li>
+      </ul>
     </div>
-  </div>
+    <div class="container">
+      <div class="graph-container"></div>
+      <button id="startBtn" class="button" hidden>Start colouring</button>
+    </div>
+    <button id="resetBtn" class="button" hidden>Reset</button>
 <div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chroma-js/2.4.2/chroma.min.js"></script>

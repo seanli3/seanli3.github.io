@@ -1,12 +1,98 @@
+const DEFAULT_NODE_COLOR = "#FFF";
+
+const DISTINCT_COLORS = paletteGenerator.generate(80).map((c) => c.hex());
+
+const hashNodeColor = (colors) => {
+  if (colors[1].length === 0) {
+    return colors[0];
+  }
+  const c1 = colors[0];
+  const c2 = colors[1].sort().join("");
+  const c = c1 + c2;
+  const index =
+    c
+      .split("")
+      .map((i) => i.charCodeAt(0))
+      .reduce((a, b) => a + b, 0) % DISTINCT_COLORS.length;
+  return DISTINCT_COLORS[index];
+};
+
+const cyGraphStyle = [
+  // the stylesheet for the graph
+  {
+    selector: "node",
+    style: {
+      width: 25,
+      height: 25,
+      "background-color": (ele) => ele.data("color") || DEFAULT_NODE_COLOR,
+      "border-width": 5,
+      "border-color": "#666",
+      // "border-width": 5,
+      label: "data(id)",
+    },
+  },
+
+  {
+    selector: "edge",
+    style: {
+      width: 3,
+      "line-color": "#ccc",
+      // "target-arrow-color": "#ccc",
+      // "target-arrow-shape": "triangle",
+      "curve-style": "bezier",
+    },
+  },
+  {
+    selector: ":parent",
+    style: {
+      "background-opacity": 0.333,
+      "background-color": "#e8e8e8",
+      "border-color": "#DADADA",
+      "text-valign": "bottom",
+    },
+  },
+  {
+    selector: "node[label]",
+    style: {
+      label: "data(label)",
+    },
+  },
+];
+
 class LVC {
-  constructor(numberOfNodes) {
+  constructor(selection, numberOfNodes) {
     this.cur_step = 0;
     this.cur_node = 0;
     this.agg_step = null;
+    this.finished = false;
     this.globalColorMaps = [];
     this.localColorMaps;
-    this.numberOfNodes = numberOfNodes;
-    this.graph = jsnx.fastGnpRandomGraph(numberOfNodes, 0.8);
+    this.partitiion = null;
+    this.initialNodeColorCode = {};
+
+    if (!numberOfNodes || parseInt(numberOfNodes) < 1) {
+      if (!["Karate club"].includes(selection)) {
+        alert("Invaldi number of nodes, please enter a number greater than 0");
+        return;
+      }
+    }
+    numberOfNodes = parseInt(numberOfNodes);
+
+    if (selection === "Random graph") {
+      this.graph = jsnx.fastGnpRandomGraph(numberOfNodes, 0.5);
+    } else if (selection === "Balanced tree") {
+      this.graph = jsnx.balancedTree(2, parseInt(Math.sqrt(numberOfNodes)));
+    } else if (selection === "Complete graph") {
+      this.graph = jsnx.completeGraph(numberOfNodes);
+    } else if (selection === "Cycle graph") {
+      this.graph = jsnx.cycleGraph(numberOfNodes);
+    } else if (selection === "Full Rary tree") {
+      this.graph = jsnx.fullRaryTree(3, numberOfNodes);
+    } else if (selection === "Karate club") {
+      this.graph = jsnx.karateClubGraph();
+    }
+
+    this.numberOfNodes = this.graph.nodes().length;
   }
 
   drawSvgCircle(color) {
@@ -16,12 +102,12 @@ class LVC {
       </svg>`;
   }
 
-  drawGraph(container, colorMap) {
+  drawGraph(container) {
     const nodes = this.graph.nodes().map((id) => ({
       data: {
         id: `${id}`,
         label: `Node${id}`,
-        color: colorMap[id] || DEFAULT_NODE_COLOR,
+        color: this.initialNodeColorCode[id] || DEFAULT_NODE_COLOR,
       },
     }));
     const edges = this.graph.edges().map(([source, target]) => ({
@@ -219,17 +305,25 @@ class LVC {
     return colorMap;
   }
 
+  addTitleToSlide(slide, title) {
+    slide.prepend($("<h2>").text(title));
+  }
+
   nextColoringStep(slide) {
     if (this.agg_step === null) {
       if (this.cur_step == 0) {
-        const cy = this.drawGraph(slide, initialNodeColorCode);
+        const title = `Graph search rooted on Node${this.cur_node}`;
+        this.addTitleToSlide(slide, title);
+        const cy = this.drawGraph(slide, this.initialNodeColorCode);
         this.localColorMaps = this.walkGraph(cy, this.cur_node);
-        this.cur_node += 1;
         this.cur_step = 1;
       } else {
         this.cur_step = 0;
+        const title = `Node colouring rooted on Node${this.cur_node}`;
+        this.addTitleToSlide(slide, title);
         this.drawColorMap(slide, this.localColorMaps);
         this.globalColorMaps.push(this.localColorMaps);
+        this.cur_node += 1;
 
         if (this.cur_node === this.numberOfNodes) {
           this.agg_step = 0;
@@ -249,6 +343,8 @@ class LVC {
         },
         {}
       );
+      const title = `Aggregating node colours`;
+      this.addTitleToSlide(slide, title);
       this.drawColorMap(slide, aggregatedColorMaps);
       const aggregatedColorCodeMaps = Object.entries(
         aggregatedColorMaps
@@ -257,14 +353,56 @@ class LVC {
         return acc;
       }, {});
 
-      initialNodeColorCode = aggregatedColorCodeMaps;
+      this.initialNodeColorCode = aggregatedColorCodeMaps;
       this.agg_step = 1;
     } else if (this.agg_step === 1) {
-      this.drawGraph(slide, initialNodeColorCode);
+      const partitiion = this.getPartition();
+      if (this.arePartitiionTheSame(partitiion, this.partitiion)) {
+        this.finished = true;
+      } else {
+        this.partitiion = partitiion;
+      }
+      let title;
+      if (this.finished) {
+        title = `Node colours converged, the colour partition is ${JSON.stringify(
+          this.partitiion
+        )}`;
+      } else {
+        title = `Node colours updated, ready for the next iteration`;
+      }
+      this.addTitleToSlide(slide, title);
+      this.drawGraph(slide);
       this.agg_step = null;
       this.cur_node = 0;
       this.cur_step = 0;
       this.globalColorMaps = [];
     }
+  }
+
+  getPartition() {
+    const counts = {};
+    Object.values(this.initialNodeColorCode).forEach((color) => {
+      if (counts[color] === undefined) {
+        counts[color] = 1;
+      } else {
+        counts[color] += 1;
+      }
+    });
+    return Object.values(counts).sort();
+  }
+
+  arePartitiionTheSame(partition1, partition2) {
+    if (!partition1 || !partition2) {
+      return false;
+    }
+    if (partition1.length !== partition2.length) {
+      return false;
+    }
+    for (let i = 0; i < partition1.length; i++) {
+      if (partition1[i] !== partition2[i]) {
+        return false;
+      }
+    }
+    return true;
   }
 }
