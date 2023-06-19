@@ -14,14 +14,22 @@ I hope you like it!
 <script src="{{ site.baseurl }}/assets/js/jsnetworkx.js"></script>
 <link rel="stylesheet" href="{{ site.baseurl }}/assets/css/post_lvc.css">
 
-<div markdown="0" class="container">
-  <div class="graph-container">
-    <div class="main-view view">
-      <div class="graph"></div>
-      <div class="graph"></div>
+<div markdown="0">
+  <div class="container">
+    <div class="graph-container"></div>
+    <button id="nextBtn" class="button">Next</button>
+    <div class="slider" hidden>
+      <a href="#0" class="next control">Next</a>
+      <a href="#0" class="prev control">Prev</a>
+     <ul></ul>
+      <div class="slider_option">
+        <Button class="btn">Autoplay</Button>
+      </div>
     </div>
   </div>
-  <button id="nextBtn" class="button">Next</button>
-</div>
+<div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chroma-js/2.4.2/chroma.min.js"></script>
+<script src="{{ site.baseurl }}/assets/js/chroma.palette-gen.js"></script>
+<script src="{{ site.baseurl }}/assets/js/lvc_utils.js"></script>
 <script src="{{ site.baseurl }}/assets/js/post_lvc.js"></script>
