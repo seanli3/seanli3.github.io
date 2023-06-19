@@ -133,7 +133,7 @@ class LVC {
 
     layout.run();
     //   cy.fit(cy.elements(), 200);
-    //   cy.panningEnabled(false);
+    cy.panningEnabled(false);
     return cy;
   }
 
@@ -174,7 +174,160 @@ class LVC {
     });
   }
 
-  walkGraph(cy, cur_node) {
+  walkGraphBfs(cy, cur_node) {
+    cy.nodes().data({
+      label: "",
+    });
+
+    cy.nodes(`#${cur_node}`).style({
+      "border-color": "red",
+      label: "v0",
+    });
+
+    var treeEdges = [];
+    var backEdges = [];
+    var backEdgesToDiscard = [];
+    var visitedNodes = new Set();
+    var visitedEdges = new Set();
+
+    cy.elements().breadthFirstSearch({
+      root: "#" + cur_node,
+      visit: (v, e, u, i) => {
+        if (i > 0) {
+          v.style("label", `v${i}`);
+
+          var edges = v.connectedEdges().map((e) => e.id());
+          edges
+            .filter((eid) => eid !== e.id())
+            .filter((eid) => !visitedEdges.has(eid))
+            .forEach((eid) => {
+              var edge = cy.edges(`#${eid}`);
+              if (visitedNodes.has(edge.target().id())) {
+                let backEdge = {
+                  data: {
+                    id: `${v.id()}-${edge.target().id()}`,
+                    source: v.id(),
+                    target: edge.target().id(),
+                  },
+                };
+                if (
+                  jsnx.shortestPathLength(this.graph, {
+                    source: cur_node,
+                    target: Number(v.id()),
+                  }) ===
+                  jsnx.shortestPathLength(this.graph, {
+                    source: cur_node,
+                    target: Number(edge.target().id()),
+                  })
+                ) {
+                  backEdgesToDiscard.push(backEdge);
+                } else {
+                  backEdges.push(backEdge);
+                }
+              } else if (visitedNodes.has(edge.source().id())) {
+                let backEdge = {
+                  data: {
+                    id: `${v.id()}-${edge.source().id()}`,
+                    source: v.id(),
+                    target: edge.source().id(),
+                  },
+                };
+                if (
+                  jsnx.shortestPathLength(this.graph, {
+                    source: cur_node,
+                    target: Number(v.id()),
+                  }) ===
+                  jsnx.shortestPathLength(this.graph, {
+                    source: cur_node,
+                    target: Number(edge.source().id()),
+                  })
+                ) {
+                  backEdgesToDiscard.push(backEdge);
+                } else {
+                  backEdges.push(backEdge);
+                }
+              }
+            });
+          treeEdges.push({
+            data: {
+              id: `${u.id()}-${v.id()}`,
+              source: u.id(),
+              target: v.id(),
+            },
+          });
+        }
+        visitedNodes.add(v.id());
+        if (e) {
+          visitedEdges.add(`${u.id()}-${v.id()}`);
+          visitedEdges.add(`${v.id()}-${u.id()}`);
+        }
+      },
+    });
+    cy.remove(cy.edges());
+    cy.add(treeEdges);
+    cy.add(backEdges);
+    cy.add(backEdgesToDiscard);
+    cy.edges(treeEdges.map((d) => `#${d.data.id}`).join(",")).style({
+      "line-color": "black",
+      "target-arrow-color": "black",
+      "target-arrow-shape": "triangle",
+      "arrow-scale": 1.5,
+    });
+    if (backEdges.length > 0) {
+      cy.edges(backEdges.map((d) => `#${d.data.id}`).join(",")).style({
+        "line-color": "black",
+        "line-style": "dashed",
+        "target-arrow-color": "grey",
+        "target-arrow-shape": "triangle",
+        "arrow-scale": 2,
+      });
+    }
+    if (backEdgesToDiscard.length > 0) {
+      cy.edges(backEdgesToDiscard.map((d) => `#${d.data.id}`).join(",")).style({
+        "line-color": "grey",
+        "line-style": "dotted",
+        opacity: 0.5,
+        "target-arrow-color": "grey",
+        "target-arrow-shape": "triangle",
+        "arrow-scale": 2,
+      });
+    }
+
+    const colorMap = {};
+    cy.nodes().forEach((node) => {
+      colorMap[node.id()] = [node.data("color"), []];
+    });
+    let radius = 1;
+    let hasNode = false;
+
+    do {
+      hasNode = false;
+      cy.nodes().forEach((n) => {
+        if (
+          jsnx.shortestPathLength(this.graph, {
+            source: cur_node,
+            target: Number(n.id()),
+          }) === radius
+        ) {
+          hasNode = true;
+          [...treeEdges, ...backEdges]
+            .filter((e) => e.data.target === n.id())
+            .forEach((edge) => {
+              colorMap[n.id()][1].push(
+                colorMap[edge.data.source]
+                  ? hashNodeColor(colorMap[edge.data.source])
+                  : cy.$id(edge.data.source).data("color")
+              );
+            });
+        }
+      });
+      radius += 1;
+    } while (hasNode);
+
+    return colorMap;
+  }
+
+  walkGraphDfs(cy, cur_node) {
     cy.nodes().data({
       label: "",
     });
@@ -306,7 +459,7 @@ class LVC {
   }
 
   addTitleToSlide(slide, title) {
-    slide.prepend($("<h2>").text(title));
+    slide.prepend($("<h3>").text(title));
   }
 
   nextColoringStep(slide) {
@@ -315,7 +468,7 @@ class LVC {
         const title = `Graph search rooted on Node${this.cur_node}`;
         this.addTitleToSlide(slide, title);
         const cy = this.drawGraph(slide, this.initialNodeColorCode);
-        this.localColorMaps = this.walkGraph(cy, this.cur_node);
+        this.localColorMaps = this.walkGraphBfs(cy, this.cur_node);
         this.cur_step = 1;
       } else {
         this.cur_step = 0;
