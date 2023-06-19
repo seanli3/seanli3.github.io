@@ -206,19 +206,23 @@ class LVC {
                 let backEdge = {
                   data: {
                     id: `${v.id()}-${edge.target().id()}`,
-                    source: v.id(),
-                    target: edge.target().id(),
+                    target: v.id(),
+                    source: edge.target().id(),
                   },
                 };
                 if (
+                  jsnx.hasPath(this.graph, {
+                    source: cur_node,
+                    target: Number(v.id()),
+                  }) &&
                   jsnx.shortestPathLength(this.graph, {
                     source: cur_node,
                     target: Number(v.id()),
                   }) ===
-                  jsnx.shortestPathLength(this.graph, {
-                    source: cur_node,
-                    target: Number(edge.target().id()),
-                  })
+                    jsnx.shortestPathLength(this.graph, {
+                      source: cur_node,
+                      target: Number(edge.target().id()),
+                    })
                 ) {
                   backEdgesToDiscard.push(backEdge);
                 } else {
@@ -228,19 +232,23 @@ class LVC {
                 let backEdge = {
                   data: {
                     id: `${v.id()}-${edge.source().id()}`,
-                    source: v.id(),
-                    target: edge.source().id(),
+                    target: v.id(),
+                    source: edge.source().id(),
                   },
                 };
                 if (
+                  jsnx.hasPath(this.graph, {
+                    source: cur_node,
+                    target: Number(v.id()),
+                  }) &&
                   jsnx.shortestPathLength(this.graph, {
                     source: cur_node,
                     target: Number(v.id()),
                   }) ===
-                  jsnx.shortestPathLength(this.graph, {
-                    source: cur_node,
-                    target: Number(edge.source().id()),
-                  })
+                    jsnx.shortestPathLength(this.graph, {
+                      source: cur_node,
+                      target: Number(edge.source().id()),
+                    })
                 ) {
                   backEdgesToDiscard.push(backEdge);
                 } else {
@@ -300,27 +308,53 @@ class LVC {
     let radius = 1;
     let hasNode = false;
 
-    do {
-      hasNode = false;
-      cy.nodes().forEach((n) => {
-        if (
-          jsnx.shortestPathLength(this.graph, {
+    cy.nodes()
+      .filter(
+        (n) =>
+          !jsnx.hasPath(this.graph, {
             source: cur_node,
             target: Number(n.id()),
-          }) === radius
-        ) {
-          hasNode = true;
-          [...treeEdges, ...backEdges]
-            .filter((e) => e.data.target === n.id())
-            .forEach((edge) => {
-              colorMap[n.id()][1].push(
-                colorMap[edge.data.source]
-                  ? hashNodeColor(colorMap[edge.data.source])
-                  : cy.$id(edge.data.source).data("color")
-              );
-            });
-        }
+          })
+      )
+      .forEach((n) => {
+        [...treeEdges, ...backEdges]
+          .filter((e) => e.data.target === n.id())
+          .forEach((edge) => {
+            colorMap[n.id()][1].push(
+              colorMap[edge.data.source]
+                ? hashNodeColor(colorMap[edge.data.source])
+                : cy.$id(edge.data.source).data("color")
+            );
+          });
       });
+    do {
+      hasNode = false;
+      cy.nodes()
+        .filter((n) =>
+          jsnx.hasPath(this.graph, {
+            source: cur_node,
+            target: Number(n.id()),
+          })
+        )
+        .forEach((n) => {
+          if (
+            jsnx.shortestPathLength(this.graph, {
+              source: cur_node,
+              target: Number(n.id()),
+            }) === radius
+          ) {
+            hasNode = true;
+            [...treeEdges, ...backEdges]
+              .filter((e) => e.data.target === n.id())
+              .forEach((edge) => {
+                colorMap[n.id()][1].push(
+                  colorMap[edge.data.source]
+                    ? hashNodeColor(colorMap[edge.data.source])
+                    : cy.$id(edge.data.source).data("color")
+                );
+              });
+          }
+        });
       radius += 1;
     } while (hasNode);
 
