@@ -23,7 +23,7 @@ I had many years of industry expeience working in software engineering, in field
 
 - ICML 2023, Local Vertex Colouring Graph Neural Networks,
   **Shouheng Li**, Qing Wang and Dongwoo Kim
-  [paper](https://openreview.net/pdf?id=szL4HN4hkH), [live demo](http://localhost:4000/2023/06/06/local-vertex-colouring.html)
+  [paper](https://openreview.net/pdf?id=szL4HN4hkH), [live demo](/2023/06/06/local-vertex-colouring.html)
 
 - ICLR 2023, N-WL: A New Hierarchy of Expressivity for Graph Neural Networks, Qing Wang, Dillon Chen, Asiri Wijesinghe, **Shouheng Li**, Muhammad Farhan
   [paper](https://openreview.net/pdf?id=5cAI0qXxyv), [code](https://graphlabanu.github.io/website/code_datasets/)
