@@ -2,6 +2,21 @@ let lvc;
 const graphSelectionEle = $("#graph-selection");
 
 const attachEventListeners = () => {
+  $("#search-selection input").click(function (event) {
+    const checked = event.target.checked;
+    const name = event.target.name;
+    if (checked) {
+      $(event.target)
+        .parent()
+        .find(`input:not([name=${name}])`)
+        .prop("checked", false);
+    } else {
+      $(event.target)
+        .parent()
+        .find(`input:not([name=${name}])`)
+        .prop("checked", true);
+    }
+  });
   $("#graph-selection button").click(function (event) {
     const selection = $(event.target).text();
     const numberOfNodes = $(event.target)
@@ -10,7 +25,8 @@ const attachEventListeners = () => {
       .parent()
       .find("input")
       .val();
-    lvc = new LVC(selection, numberOfNodes);
+    const searchType = $("#search-selection input:checked").prop("name");
+    lvc = new LVC(selection, numberOfNodes, searchType);
     const viewContainer = $(event.target).parent().parent().parent().parent();
     lvc.drawGraph(viewContainer.find(".graph-container"));
 
@@ -55,7 +71,7 @@ const attachEventListeners = () => {
         const slider = $(event.target.parentElement);
         const slide = $("<li><div/></li>");
         slider.find("ul").append(slide);
-        lvc.nextColoringStep(slide.find("div"));
+        setTimeout(() => lvc.nextColoringStep(slide.find("div")), 20);
       });
 
       slider.find(".prev").on("click", (event) => {
@@ -70,7 +86,7 @@ const attachEventListeners = () => {
         }
       });
 
-      lvc.nextColoringStep(slide.find("div"));
+      setTimeout(() => lvc.nextColoringStep(slide.find("div")), 20);
 
       event.target.remove();
       graphSelectionEle.remove();

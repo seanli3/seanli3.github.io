@@ -184,6 +184,11 @@ html, body {
   font-size: 25px;
 }
 
+#graph-selection #search-selection input {
+  height: 15px;
+  width: 20px;
+}
+
 hr {
   margin-top: 10px;;
   margin-bottom: 10px;;

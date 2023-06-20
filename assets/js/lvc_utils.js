@@ -60,7 +60,7 @@ const cyGraphStyle = [
 ];
 
 class LVC {
-  constructor(selection, numberOfNodes) {
+  constructor(selection, numberOfNodes, search = "bfs") {
     this.cur_step = 0;
     this.cur_node = 0;
     this.agg_step = null;
@@ -68,6 +68,7 @@ class LVC {
     this.globalColorMaps = [];
     this.localColorMaps;
     this.partitiion = null;
+    this.search = search;
     this.initialNodeColorCode = {};
 
     if (!numberOfNodes || parseInt(numberOfNodes) < 1) {
@@ -368,7 +369,7 @@ class LVC {
 
     cy.nodes(`#${cur_node}`).style({
       "border-color": "red",
-      label: "v0",
+      // label: "v0",
     });
 
     var treeEdges = [];
@@ -377,12 +378,15 @@ class LVC {
     var visitedNodes = new Set();
     var visitedEdges = new Set();
 
-    cy.elements().breadthFirstSearch({
+    const visitOrder = {};
+
+    cy.elements().depthFirstSearch({
       root: "#" + cur_node,
       visit: (v, e, u, i) => {
-        if (i > 0) {
-          v.style("label", `v${i}`);
+        v.style("label", `v${i}`);
+        visitOrder[v.id()] = i;
 
+        if (i > 0) {
           var edges = v.connectedEdges().map((e) => e.id());
           edges
             .filter((eid) => eid !== e.id())
@@ -397,20 +401,7 @@ class LVC {
                     target: edge.target().id(),
                   },
                 };
-                if (
-                  jsnx.shortestPathLength(this.graph, {
-                    source: cur_node,
-                    target: Number(v.id()),
-                  }) ===
-                  jsnx.shortestPathLength(this.graph, {
-                    source: cur_node,
-                    target: Number(edge.target().id()),
-                  })
-                ) {
-                  backEdgesToDiscard.push(backEdge);
-                } else {
-                  backEdges.push(backEdge);
-                }
+                backEdges.push(backEdge);
               } else if (visitedNodes.has(edge.source().id())) {
                 let backEdge = {
                   data: {
@@ -419,20 +410,7 @@ class LVC {
                     target: edge.source().id(),
                   },
                 };
-                if (
-                  jsnx.shortestPathLength(this.graph, {
-                    source: cur_node,
-                    target: Number(v.id()),
-                  }) ===
-                  jsnx.shortestPathLength(this.graph, {
-                    source: cur_node,
-                    target: Number(edge.source().id()),
-                  })
-                ) {
-                  backEdgesToDiscard.push(backEdge);
-                } else {
-                  backEdges.push(backEdge);
-                }
+                backEdges.push(backEdge);
               }
             });
           treeEdges.push({
@@ -481,15 +459,94 @@ class LVC {
     }
 
     const colorMap = {};
+
     cy.nodes().forEach((node) => {
-      colorMap[node.id()] = [node.data("color"), []];
-    });
-    [...treeEdges, ...backEdges].forEach((edge) => {
-      colorMap[edge.data.target][1].push(
-        cy.$id(edge.data.source).data("color")
+      const q_u = backEdges.filter((e) =>
+        this.isCoveredByBackEdge(node, e, treeEdges)
       );
+      let d_u = q_u;
+      let delta_d_u = [];
+      do {
+        delta_d_u = [];
+        d_u.forEach((edge) => {
+          backEdges.forEach((e) => {
+            if (
+              this.areBackEdgesCrossOver(edge, e, visitOrder) &&
+              !d_u.includes(e) &&
+              !delta_d_u.includes(e)
+            ) {
+              delta_d_u.push(e);
+            }
+          });
+        });
+        d_u = d_u.concat(delta_d_u);
+      } while (delta_d_u.length > 0);
+      const b_u = cy.nodes().filter((n) => {
+        return d_u.some((e) => this.isCoveredByBackEdge(n, e, treeEdges));
+      });
+      const leadingTreeEdge = treeEdges.find(
+        (e) => e.data.target === node.id()
+      );
+      const eta_u = new Set([...b_u.map((n) => n.id())]);
+      if (leadingTreeEdge) {
+        eta_u.add(leadingTreeEdge.data.source);
+      }
+      colorMap[node.id()] = [
+        node.data("color"),
+        [...[...eta_u].map((n) => cy.$id(n).data("color"))],
+      ];
     });
+
     return colorMap;
+  }
+
+  isCoveredByBackEdge(node, bedge, treeEdges) {
+    let pathFound = false;
+    let end = bedge.data.source;
+    const path = [end];
+    do {
+      const edge = treeEdges.find((e) => e.data.target === end);
+      end = edge.data.source;
+      path.unshift(end);
+      if (end === bedge.data.target) {
+        pathFound = true;
+      }
+    } while (!pathFound);
+    if (path.includes(node.id())) {
+      return true;
+    }
+    return false;
+  }
+
+  areBackEdgesCrossOver(e1, e2, visitOrder) {
+    if (
+      visitOrder[e2.data.target] < visitOrder[e1.data.target] &&
+      visitOrder[e1.data.target] < visitOrder[e2.data.source] &&
+      visitOrder[e2.data.source] < visitOrder[e1.data.source]
+    ) {
+      return true;
+    }
+    if (
+      visitOrder[e1.data.target] < visitOrder[e2.data.target] &&
+      visitOrder[e2.data.target] < visitOrder[e1.data.source] &&
+      visitOrder[e1.data.source] < visitOrder[e2.data.source]
+    ) {
+      return true;
+    }
+
+    if (
+      visitOrder[e1.data.target] === visitOrder[e2.data.target] &&
+      visitOrder[e1.data.source] !== visitOrder[e2.data.source]
+    ) {
+      return true;
+    }
+    if (
+      visitOrder[e1.data.source] === visitOrder[e2.data.source] &&
+      visitOrder[e1.data.target] !== visitOrder[e2.data.target]
+    ) {
+      return true;
+    }
+    return false;
   }
 
   addTitleToSlide(slide, title) {
@@ -502,7 +559,11 @@ class LVC {
         const title = `Graph search rooted on Node${this.cur_node}`;
         this.addTitleToSlide(slide, title);
         const cy = this.drawGraph(slide, this.initialNodeColorCode);
-        this.localColorMaps = this.walkGraphBfs(cy, this.cur_node);
+        if (this.search === "bfs") {
+          this.localColorMaps = this.walkGraphBfs(cy, this.cur_node);
+        } else {
+          this.localColorMaps = this.walkGraphDfs(cy, this.cur_node);
+        }
         this.cur_step = 1;
       } else {
         this.cur_step = 0;
