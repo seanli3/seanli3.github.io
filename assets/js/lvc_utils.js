@@ -1,13 +1,13 @@
 const DEFAULT_NODE_COLOR = "#FFF";
 
-const DISTINCT_COLORS = paletteGenerator.generate(80).map((c) => c.hex());
+const DISTINCT_COLORS = paletteGenerator.generate(100).map((c) => c.hex());
 
 const hashNodeColor = (colors) => {
   if (colors[1].length === 0) {
     return colors[0];
   }
   const c1 = colors[0];
-  const c2 = colors[1].sort().join("");
+  const c2 = colors[1].toSorted().join("");
   const c = c1 + c2;
   const index =
     c
@@ -61,15 +61,9 @@ const cyGraphStyle = [
 
 class LVC {
   constructor(selection, numberOfNodes, search = "bfs") {
-    this.cur_step = 0;
-    this.cur_node = 0;
-    this.agg_step = null;
     this.finished = false;
-    this.globalColorMaps = [];
-    this.localColorMaps;
-    this.partitiion = null;
+    this.localColorMaps = {};
     this.search = search;
-    this.initialNodeColorCode = {};
 
     if (!numberOfNodes || parseInt(numberOfNodes) < 1) {
       if (!["Karate club"].includes(selection)) {
@@ -94,21 +88,29 @@ class LVC {
     }
 
     this.numberOfNodes = this.graph.nodes().length;
+    this.initialNodeColorCode = {};
+    for (let i = 0; i < this.numberOfNodes; i++) {
+      this.initialNodeColorCode[i] = [DEFAULT_NODE_COLOR, []];
+    }
   }
 
   drawSvgCircle(color) {
     return `
-      <svg height="24" width="24">
-        <circle cx="12" cy="12" r="9" stroke="black" stroke-width="3" fill="${color}" />
+      <svg height="20" width="20">
+        <circle cx="10" cy="10" r="8" stroke="black" stroke-width="2" fill="${color}" />
       </svg>`;
   }
 
-  drawGraph(container) {
+  setInitialNodeColorCode(colorCode) {
+    this.initialNodeColorCode = colorCode;
+  }
+
+  drawGraph(container, colorMap = this.initialNodeColorCode) {
     const nodes = this.graph.nodes().map((id) => ({
       data: {
         id: `${id}`,
-        label: `Node${id}`,
-        color: this.initialNodeColorCode[id] || DEFAULT_NODE_COLOR,
+        label: `v${id}`,
+        color: hashNodeColor(colorMap[id]),
       },
     }));
     const edges = this.graph.edges().map(([source, target]) => ({
@@ -138,51 +140,99 @@ class LVC {
     return cy;
   }
 
-  drawColorMap(container, colorMap) {
-    const table = $("<table>");
-    container.append(table);
+  addNodeTooltip(cy, colorMap = this.initialNodeColorCode) {
+    let tip;
 
-    Object.entries(colorMap).forEach(([nodeId, colors], j) => {
-      table.append(
-        $("<tr>")
-          .append(`<td>Node${nodeId}:</td>`)
-          .append(
-            $(
-              "<td><span class='text'>{ </span>" +
-                `<span class="node">${this.drawSvgCircle(colors[0])}</span>` +
-                ' <span class="text"> { </span>' +
-                colors[1]
-                  .map(
-                    (color) =>
-                      `<span style="color:${color}" class="node">${this.drawSvgCircle(
-                        color
-                      )}</span> `
-                  )
-                  .join(" ") +
-                " <span class='text'> } } </span>" +
-                "</td>"
-            )
-          )
-          .append($(`<td><span class="arrow">&#8594;</span></td>`))
-          .append(
-            $(
-              `<td><span class="node">${this.drawSvgCircle(
-                hashNodeColor(colors)
-              )}</span></td>`
-            )
-          )
-      );
+    cy.on("destroy", () => {
+      if (tip) {
+        tip.destroy();
+        tip = null;
+      }
+    });
+
+    cy.on("tap", (event) => {
+      if (tip) {
+        tip.destroy();
+        tip = null;
+      }
+      if (!event.target.isNode || !event.target.isNode()) {
+        return;
+      }
+
+      const node = event.target;
+
+      const ref = node.popperRef(); // used only for positioning
+
+      // A dummy element must be passed as tippy only accepts dom element(s) as the target
+      // https://atomiks.github.io/tippyjs/v6/constructor/#target-types
+      const dummyDomEle = document.createElement("div");
+
+      tip = new tippy(dummyDomEle, {
+        getReferenceClientRect: ref.getBoundingClientRect,
+        trigger: "manual",
+        content: () => {
+          const content = this.getNodeColorMapTable(colorMap, node.id());
+          return content.get(0);
+        },
+        arrow: true,
+        placement: "bottom",
+        hideOnClick: false,
+        sticky: "reference",
+        interactive: true,
+        animatin: "shift-away",
+        theme: "light",
+        appendTo: document.body, // or append dummyDomEle to document.body
+      });
+      tip.show();
     });
   }
 
+  getNodeColorMapTable(colorMap, nodeId) {
+    const table = $("<table>");
+    const colors = colorMap[nodeId];
+    table.append(
+      $("<tr>")
+        .append(
+          $(
+            "<td><span class='text'>{ </span>" +
+              `<span class="node">${this.drawSvgCircle(colors[0])}</span>` +
+              (colors[1].length > 0
+                ? ' <span class="text"> { </span>' +
+                  colors[1]
+                    .map(
+                      (color) =>
+                        `<span style="color:${color}" class="node">${this.drawSvgCircle(
+                          color
+                        )}</span> `
+                    )
+                    .join(" ") +
+                  " <span class='text'> }"
+                : "") +
+              " } </span>" +
+              "</td>"
+          )
+        )
+        .append(
+          $(
+            `<td>
+            <span class="arrow">&#8594;</span>
+            <span class="node">${this.drawSvgCircle(
+              hashNodeColor(colors)
+            )}</span></td>`
+          )
+        )
+    );
+    return table;
+  }
+
   walkGraphBfs(cy, cur_node) {
-    cy.nodes().data({
-      label: "",
-    });
+    // cy.nodes().data({
+    //   label: "",
+    // });
 
     cy.nodes(`#${cur_node}`).style({
       "border-color": "red",
-      label: "v0",
+      // label: "v0",
     });
 
     var treeEdges = [];
@@ -195,7 +245,7 @@ class LVC {
       root: "#" + cur_node,
       visit: (v, e, u, i) => {
         if (i > 0) {
-          v.style("label", `v${i}`);
+          // v.style("label", `v${i}`);
 
           var edges = v.connectedEdges().map((e) => e.id());
           edges
@@ -275,7 +325,7 @@ class LVC {
     cy.remove(cy.edges());
     cy.add(treeEdges);
     cy.add(backEdges);
-    cy.add(backEdgesToDiscard);
+    // cy.add(backEdgesToDiscard);
     cy.edges(treeEdges.map((d) => `#${d.data.id}`).join(",")).style({
       "line-color": "black",
       "target-arrow-color": "black",
@@ -363,9 +413,9 @@ class LVC {
   }
 
   walkGraphDfs(cy, cur_node) {
-    cy.nodes().data({
-      label: "",
-    });
+    // cy.nodes().data({
+    //   label: "",
+    // });
 
     cy.nodes(`#${cur_node}`).style({
       "border-color": "red",
@@ -383,7 +433,7 @@ class LVC {
     cy.elements().depthFirstSearch({
       root: "#" + cur_node,
       visit: (v, e, u, i) => {
-        v.style("label", `v${i}`);
+        // v.style("label", `v${i}`);
         visitOrder[v.id()] = i;
 
         if (i > 0) {
@@ -549,82 +599,44 @@ class LVC {
     return false;
   }
 
-  addTitleToSlide(slide, title) {
-    slide.prepend($("<h3>").text(title));
+  drawLocallyColouredGraph(
+    container,
+    nodeId,
+    colorMap = this.initialNodeColorCode
+  ) {
+    const cy = this.drawGraph(container, colorMap);
+    let localColorMap;
+    if (this.search === "bfs") {
+      localColorMap = this.walkGraphBfs(cy, nodeId);
+    } else {
+      localColorMap = this.walkGraphDfs(cy, nodeId);
+    }
+    cy.nodes().forEach((node) => {
+      node.style({
+        "background-color": hashNodeColor(localColorMap[node.id()]),
+      });
+    });
+    this.localColorMaps[nodeId] = localColorMap;
+    return cy;
   }
 
-  nextColoringStep(slide) {
-    if (this.agg_step === null) {
-      if (this.cur_step == 0) {
-        const title = `Graph search rooted on Node${this.cur_node}`;
-        this.addTitleToSlide(slide, title);
-        const cy = this.drawGraph(slide, this.initialNodeColorCode);
-        if (this.search === "bfs") {
-          this.localColorMaps = this.walkGraphBfs(cy, this.cur_node);
-        } else {
-          this.localColorMaps = this.walkGraphDfs(cy, this.cur_node);
-        }
-        this.cur_step = 1;
-      } else {
-        this.cur_step = 0;
-        const title = `Node colouring rooted on Node${this.cur_node}`;
-        this.addTitleToSlide(slide, title);
-        this.drawColorMap(slide, this.localColorMaps);
-        this.globalColorMaps.push(this.localColorMaps);
-        this.cur_node += 1;
-
-        if (this.cur_node === this.numberOfNodes) {
-          this.agg_step = 0;
-        }
-      }
-    } else if (this.agg_step === 0) {
-      const aggregatedColorMaps = this.globalColorMaps.reduce(
-        (acc, colorMap) => {
-          Object.entries(colorMap).forEach(([nodeId, colors]) => {
-            if (acc[nodeId] === undefined) {
-              acc[nodeId] = [colors[0], [hashNodeColor(colors)]];
-            } else {
-              acc[nodeId][1].push(hashNodeColor(colors));
-            }
-          });
-          return acc;
-        },
-        {}
-      );
-      const title = `Aggregating node colours`;
-      this.addTitleToSlide(slide, title);
-      this.drawColorMap(slide, aggregatedColorMaps);
-      const aggregatedColorCodeMaps = Object.entries(
-        aggregatedColorMaps
-      ).reduce((acc, [nodeId, colors]) => {
-        acc[nodeId] = hashNodeColor(colors);
+  aggregateLocalColorMaps() {
+    const aggregatedColorMaps = Object.entries(this.localColorMaps)
+      .toSorted(([key1], [key2]) => {
+        return parseInt(key1) - parseInt(key2);
+      })
+      .reduce((acc, [_, colorMap]) => {
+        Object.entries(colorMap).forEach(([nodeId, colors]) => {
+          if (acc[nodeId] === undefined) {
+            acc[nodeId] = [colors[0], [hashNodeColor(colors)]];
+          } else {
+            acc[nodeId][1].push(hashNodeColor(colors));
+          }
+        });
         return acc;
       }, {});
 
-      this.initialNodeColorCode = aggregatedColorCodeMaps;
-      this.agg_step = 1;
-    } else if (this.agg_step === 1) {
-      const partitiion = this.getPartition();
-      if (this.arePartitiionTheSame(partitiion, this.partitiion)) {
-        this.finished = true;
-      } else {
-        this.partitiion = partitiion;
-      }
-      let title;
-      if (this.finished) {
-        title = `Node colours converged, the colour partition is ${JSON.stringify(
-          this.partitiion
-        )}`;
-      } else {
-        title = `Node colours updated, ready for the next iteration`;
-      }
-      this.addTitleToSlide(slide, title);
-      this.drawGraph(slide);
-      this.agg_step = null;
-      this.cur_node = 0;
-      this.cur_step = 0;
-      this.globalColorMaps = [];
-    }
+    return aggregatedColorMaps;
   }
 
   getPartition() {
@@ -636,7 +648,7 @@ class LVC {
         counts[color] += 1;
       }
     });
-    return Object.values(counts).sort();
+    return Object.values(counts).toSorted();
   }
 
   arePartitiionTheSame(partition1, partition2) {

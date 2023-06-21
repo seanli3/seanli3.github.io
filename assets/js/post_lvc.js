@@ -1,5 +1,7 @@
 let lvc;
 const graphSelectionEle = $("#graph-selection");
+let topContainerCy;
+let bottomContanerCys = [];
 
 const attachEventListeners = () => {
   $("#search-selection input").click(function (event) {
@@ -28,68 +30,60 @@ const attachEventListeners = () => {
     const searchType = $("#search-selection input:checked").prop("name");
     lvc = new LVC(selection, numberOfNodes, searchType);
     const viewContainer = $(event.target).parent().parent().parent().parent();
-    lvc.drawGraph(viewContainer.find(".graph-container"));
+    topContainerCy = lvc.drawGraph(viewContainer.find(".graph-container"));
 
     const resetBtn = $("#resetBtn");
-    resetBtn.show();
+    resetBtn.parent().show();
     resetBtn.click((event) => {
       window.location.reload();
     });
 
     const startBtn = $("#startBtn");
-    startBtn.show();
+    startBtn.parent().show();
     startBtn.click(function (event) {
-      const slider = $(`
-      <div class="slider" >
-        <a href="#0" class="next control">Next</a>
-        <a href="#0" class="prev control">Prev</a>
-        <ul></ul>
-      </div>
-    `);
+      if (lvc.finished) {
+        return;
+      }
+      const container = $(".container.local");
+      bottomContanerCys.forEach((c) => c.destroy());
+      bottomContanerCys = [];
+      container.children().remove();
 
-      const slide = $("<li><div/></li>");
-      slider.find("ul").append(slide);
+      for (let i = 0; i < lvc.numberOfNodes; i++) {
+        const localGraphContaienr = $('<div class="graph-container"></div>');
+        container.append(localGraphContaienr);
+        setTimeout(() => {
+          const cy = lvc.drawLocallyColouredGraph(localGraphContaienr, i);
+          lvc.addNodeTooltip(cy, lvc.localColorMaps[i]);
+          bottomContanerCys.push(cy);
+        }, 20);
+      }
 
-      $(event.target).parent().append(slider);
+      $(event.target).parent().hide();
+      graphSelectionEle.hide();
+      $("#updateBtn").parent().show();
+    });
 
-      slider.find(".next").on("click", (event) => {
-        const currentSlide = $(event.target)
-          .parent()
-          .parent()
-          .parent()
-          .find(".slider ul li:visible");
-        if (currentSlide.next().length !== 0) {
-          currentSlide.hide();
-          currentSlide.next().show();
-          return;
-        }
-        if (lvc.finished) {
-          return;
-        }
-        currentSlide.hide();
+    const updateBtn = $("#updateBtn");
+    updateBtn.click(function (event) {
+      if (lvc.finished) {
+        return;
+      }
+      const aggregatedColorMap = lvc.aggregateLocalColorMaps();
+      lvc.setInitialNodeColorCode(aggregatedColorMap);
+      topContainerCy.destroy();
+      const cy = lvc.drawGraph(
+        $(".container.global .graph-container"),
+        aggregatedColorMap
+      );
 
-        const slider = $(event.target.parentElement);
-        const slide = $("<li><div/></li>");
-        slider.find("ul").append(slide);
-        setTimeout(() => lvc.nextColoringStep(slide.find("div")), 20);
-      });
-
-      slider.find(".prev").on("click", (event) => {
-        const currentSlide = $(event.target)
-          .parent()
-          .parent()
-          .parent()
-          .find(".slider ul li:visible");
-        if (currentSlide.prev().length !== 0) {
-          currentSlide.hide();
-          currentSlide.prev().show();
-        }
-      });
-
-      setTimeout(() => lvc.nextColoringStep(slide.find("div")), 20);
-
-      event.target.remove();
-      graphSelectionEle.remove();
+      lvc.addNodeTooltip(cy, aggregatedColorMap);
+      $(event.target).parent().hide();
+      graphSelectionEle.hide();
+      $("#updateBtn").parent().show();
+      startBtn.parent().show();
+      updateBtn.parent().hide();
+      topContainerCy = cy;
     });
   });
 };

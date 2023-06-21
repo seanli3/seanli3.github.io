@@ -9,6 +9,7 @@ title: "Local Vertex Colouring"
 <script src="{{ site.baseurl }}/assets/js/cytoscape.min.js"></script>
 <script src="{{ site.baseurl }}/assets/js/jsnetworkx.js"></script>
 <link rel="stylesheet" href="{{ site.baseurl }}/assets/css/post_lvc.css">
+<link rel="stylesheet" href="{{ site.baseurl }}/assets/css/tippy_themes_light.css">
 
 <div markdown="0">
     <div id="graph-selection">
@@ -43,17 +44,32 @@ title: "Local Vertex Colouring"
           <button class="button">Karate club</button>
         </li>
       </ul>
-      
     </div>
-    <div class="container">
+    <div class="container global">
       <div class="graph-container"></div>
-      <button id="startBtn" class="button" hidden>Start colouring</button>
     </div>
-    <button id="resetBtn" class="button" hidden>Reset</button>
-
+    <div class="container local">
+    </div>
+    <div class="btn-container">
+      <div class="card" hidden>
+        <button id="resetBtn" class="button">Reset</button>
+        <p>some text</p>
+      </div>
+      <div class="card" hidden>
+        <button id="startBtn" class="button nextBtn">Start localized colouring</button>
+        <p>some text</p>
+      </div>
+      <div class="card" hidden>
+        <button id="updateBtn" class="button nextBtn">Aggregate and update colours></button>
+        <p>some text</p>
+      </div>
+    </div>
 <div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/chroma-js/2.4.2/chroma.min.js"></script>
+<script src="{{ site.baseurl }}/assets/js/chroma.min.js"></script>
 <script src="{{ site.baseurl }}/assets/js/chroma.palette-gen.js"></script>
 <script src="{{ site.baseurl }}/assets/js/lvc_utils.js"></script>
+<script src="{{ site.baseurl }}/assets/js/popper.min.js"></script>
+<script src="{{ site.baseurl }}/assets/js/cytoscape-popper.js"></script>
+<script src="{{ site.baseurl }}/assets/js/tippy.min.js"></script>
 <script src="{{ site.baseurl }}/assets/js/post_lvc.js"></script>
