@@ -1,0 +1,23 @@
+# /_data/authors.yml
+
+Sean Li:
+  name: "Sean (Shouheng) Li"
+  bio: "My research and work."
+  avatar: "/assets/img/sean2.jpeg"
+  location: "Canberra, AU"
+  links:
+    - label: "Email"
+      icon: "fas fa-fw fa-envelope-square"
+      url: "mailto:shouheng.li@anu.edu.au"
+    - label: "Website"
+      icon: "fas fa-fw fa-link"
+      url: "https://seanli3.github.io"
+    - label: "Github"
+      icon: "fab fa-fw fa-github"
+      url: "https://github.com/seanli3/"
+    - label: "Google Scholar"
+      icon: "fab fa-fw fa-google"
+      url: "https://scholar.google.com.au/citations?user=q9jW6okAAAAJ"
+    # - label: "Twitter"
+    #   icon: "fab fa-fw fa-twitter-square"
+    #   url: "https://twitter.com/extravagantman"

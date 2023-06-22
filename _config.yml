@@ -18,7 +18,9 @@
 # You can create any custom variable you would like, and they will be accessible
 # in the templates via {{ site.myvariable }}.
 
-title: Sean (Shouheng) Li | 李守恒
+title: Sean's Space
+subtitle: "My research and work."
+name: "Sean (Shouheng) Li"
 email: shouheng.li@anu.edu.au
 description: >- # this means to ignore newlines until "baseurl:"
   This the personal website of Sean (Shouheng) Li. I publish contents about my research in machine learning, data science, software engineering, and other interests.
@@ -29,6 +31,12 @@ github_username: jekyll
 
 # Build settings
 remote_theme: "mmistakes/minimal-mistakes@4.24.0"
+
+minimal_mistakes_skin: "contrast"
+
+breadcrumbs: true
+show_date: true
+search: true
 
 include: ["_pages"]
 
@@ -56,7 +64,10 @@ plugins:
 #   - vendor/ruby/
 
 defaults:
-  # _posts
+  - scope:
+      path: ""
+    values:
+      author: Sean Li
   - scope:
       path: ""
       type: posts
@@ -67,5 +78,4 @@ defaults:
       comments: true
       share: true
       related: true
-      author: Billy Rick
       author_profile: true

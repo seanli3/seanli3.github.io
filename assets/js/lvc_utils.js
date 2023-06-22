@@ -639,19 +639,19 @@ class LVC {
     return aggregatedColorMaps;
   }
 
-  getPartition() {
+  getPartition(colorMap = this.initialNodeColorCode) {
     const counts = {};
-    Object.values(this.initialNodeColorCode).forEach((color) => {
-      if (counts[color] === undefined) {
-        counts[color] = 1;
+    Object.values(colorMap).forEach((color) => {
+      if (counts[hashNodeColor(color)] === undefined) {
+        counts[hashNodeColor(color)] = 1;
       } else {
-        counts[color] += 1;
+        counts[hashNodeColor(color)] += 1;
       }
     });
     return Object.values(counts).toSorted();
   }
 
-  arePartitiionTheSame(partition1, partition2) {
+  arePartitiionsSame(partition1, partition2) {
     if (!partition1 || !partition2) {
       return false;
     }

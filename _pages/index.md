@@ -1,16 +1,8 @@
 ---
+layout: home
+title: "Local Vertex Colouring"
 permalink: /
-layout: single
 author_profile: true
-classes:
-  - dark-theme
-sidebar:
-  - title: "Title"
-    image: http://placehold.it/350x250
-    image_alt: "image"
-    text: "Some text here."
-  - title: "Another Title"
-    text: "More text here."
 ---
 
 I am a final-year Ph.D. student in the [Graph Research Lab](https://graphlabanu.github.io/website/) of ANU. My research interest in graph representation learning, in particular how GNNs can be made more powerful and generalizable.
@@ -23,7 +15,7 @@ I had many years of industry expeience working in software engineering, in field
 
 - ICML 2023, Local Vertex Colouring Graph Neural Networks,
   **Shouheng Li**, Qing Wang and Dongwoo Kim
-  [paper](https://openreview.net/pdf?id=szL4HN4hkH), [live demo](/2023/06/06/local-vertex-colouring.html)
+  [paper](https://openreview.net/pdf?id=szL4HN4hkH), [live demo](/demo/local-vertex-colouring)
 
 - ICLR 2023, N-WL: A New Hierarchy of Expressivity for Graph Neural Networks, Qing Wang, Dillon Chen, Asiri Wijesinghe, **Shouheng Li**, Muhammad Farhan
   [paper](https://openreview.net/pdf?id=5cAI0qXxyv), [code](https://graphlabanu.github.io/website/code_datasets/)

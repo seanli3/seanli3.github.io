@@ -1,6 +1,8 @@
 ---
-layout: post
+layout: splash
 title: "Local Vertex Colouring"
+categories: demo
+permalink: /:categories/:title/
 ---
 
 # Local Vertex Colouring Live Demo
@@ -11,59 +13,60 @@ title: "Local Vertex Colouring"
 <link rel="stylesheet" href="{{ site.baseurl }}/assets/css/post_lvc.css">
 <link rel="stylesheet" href="{{ site.baseurl }}/assets/css/tippy_themes_light.css">
 
-<div markdown="0">
+<div markdown="0" class="view">
     <div id="graph-selection">
-      <h3>
-      Start by adding a graph, Number of nodes: <input type="number" min=1 max=10 value=5/>
-      </h3>
+        <div class="notice--success top-notice-container">
+          <span>
+            Start by adding a graph, Number of nodes: <input type="number" min=1 max=10 value=5/>
+          </span>
+          <button id="resetBtn" style="display:none" class="btn btn--warning btn--large">Reset</button>
+        </div>
       <div id="search-selection">
-        <input type="checkbox" id="bfs" name="bfs" checked>
-        <label for="bfs"> Breadth-first search</label>
-        <br/>
-        <input type="checkbox" id="dfs" name="dfs" value="dfs">
-        <label for="dfs"> Depth-first search</label>
+        <div>
+          <input type="checkbox" id="bfs" name="bfs" checked>
+          <label for="bfs"> Breadth-first search</label>
+        </div>
+        <div>
+          <input type="checkbox" id="dfs" name="dfs" value="dfs">
+          <label for="dfs"> Depth-first search</label>
+        </div>
       </div>
       <hr/>
       <ul>
         <li>
-          <button class="button">Random graph</button>
+          <button class="btn btn--info btn--small">Random graph</button>
         </li>
         <li>
-          <button class="button">Balanced tree</button>
+          <button class="btn btn--info btn--small">Complete graph</button>
         </li>
         <li>
-          <button class="button">Complete graph</button>
+          <button class="btn btn--info btn--small">Balanced tree</button>
         </li>
         <li>
-          <button class="button">Cycle graph</button>
+          <button class="btn btn--info btn--small">Cycle graph</button>
         </li>
         <li>
-          <button class="button">Full Rary tree</button>
+          <button class="btn btn--info btn--small">Full Rary tree</button>
         </li>
         <li>
-          <button class="button">Karate club</button>
+          <button class="btn btn--info btn--small">Karate club</button>
         </li>
       </ul>
     </div>
-    <div class="container global">
+    <div class="container global" hidden style="display:none">
       <div class="graph-container"></div>
     </div>
-    <div class="container local">
+    <div id="description" hidden>
     </div>
-    <div class="btn-container">
-      <div class="card" hidden>
-        <button id="resetBtn" class="button">Reset</button>
-        <p>some text</p>
-      </div>
-      <div class="card" hidden>
-        <button id="startBtn" class="button nextBtn">Start localized colouring</button>
-        <p>some text</p>
-      </div>
-      <div class="card" hidden>
-        <button id="updateBtn" class="button nextBtn">Aggregate and update colours></button>
-        <p>some text</p>
-      </div>
+    <div class="card" hidden>
+      <button id="startBtn" class="btn btn--success btn--large">Start Localized Colouring</button>
+      <p>Perform graph search rooted at every node, and compute localized node colour accordingly.</p>
     </div>
+    <div class="card" hidden>
+      <button id="updateBtn" class="btn btn--success btn--large">Aggregate & Update Colour</button>
+      <p>Aggregate node colours from all search trees, compute and assign new node colours to each node.</p>
+    </div>
+    <div class="container local" hidden style="display:none"></div>
 <div>
 
 <script src="{{ site.baseurl }}/assets/js/chroma.min.js"></script>
