@@ -40,6 +40,11 @@ search: true
 
 include: ["_pages"]
 
+
+head_scripts:
+  - https://www.googletagmanager.com/gtag/js?id=G-8Y1T8TFKFF
+  - /assets/js/ga.js
+
 plugins:
   - jekyll-feed
   - jekyll-include-cache
