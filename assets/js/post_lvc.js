@@ -16,6 +16,10 @@ const attachEventListeners = () => {
         .find(`input:not([name=${name}])`)
         .prop("checked", true);
     }
+    const searchType = $("#search-selection input:checked").prop("name");
+    if (lvc) {
+      lvc.search = searchType;
+    }
   });
   $("#graph-selection button").click(function (event) {
     const selection = $(event.target).text();
@@ -27,6 +31,7 @@ const attachEventListeners = () => {
       .val();
     const searchType = $("#search-selection input:checked").prop("name");
     lvc = new LVC(selection, numberOfNodes, searchType);
+
     const viewContainer = $(".container.global");
     viewContainer.show();
     topContainerCy = lvc.drawGraph(viewContainer.find(".graph-container"));
