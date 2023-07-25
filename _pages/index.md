@@ -1,6 +1,6 @@
 ---
 layout: home
-title: "Local Vertex Colouring"
+title: "About me"
 permalink: /
 author_profile: true
 ---
