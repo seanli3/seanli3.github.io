@@ -15,11 +15,11 @@ permalink: /:categories/:title/
 
 <div markdown="0" class="view">
     <div id="graph-selection">
-        <div class="notice--success top-notice-container">
+        <div class="notice--success top-notice-container" style="font-size:large !important">
           <span>
             Start by adding a graph, Number of nodes: <input type="number" min=1 max=10 value=5/>
           </span>
-          <button id="resetBtn" style="display:none" class="btn btn--warning btn--large">Reset</button>
+          <button id="resetBtn" style="display:none" class="btn btn--danger btn--large">Reset</button>
         </div>
       <div id="search-selection">
         <div>
@@ -55,16 +55,14 @@ permalink: /:categories/:title/
     </div>
     <div class="container global" hidden style="display:none">
       <div class="graph-container"></div>
-    </div>
-    <div id="description" hidden>
-    </div>
-    <div class="card" hidden>
-      <button id="startBtn" class="btn btn--success btn--large">Start Localized Colouring</button>
-      <p>Perform graph search rooted at every node, and compute localized node colour accordingly.</p>
-    </div>
-    <div class="card" hidden>
-      <button id="updateBtn" class="btn btn--success btn--large">Aggregate & Update Colour</button>
-      <p>Aggregate node colours from all search trees, compute and assign new node colours to each node.</p>
+      <div class="control-container" style="display:flex;justify-content:space-evenly;">
+        <div id="description" ></div>
+        <div id="hint" class='notice--success' style='font-size:large !important; margin-top:0 !important; margin-bottom:5px !important;display:none'>
+          <i>Try select a node from above to see how the colour is computed</i>
+        </div>
+        <span id="downBtn" class="arrow circle down" style="display:none">Click me</span>
+        <span id="upBtn" class="arrow circle up" style="display:none">Click me</span>
+      </div>
     </div>
     <div class="container local" hidden style="display:none"></div>
 <div>

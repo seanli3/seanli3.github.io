@@ -215,7 +215,7 @@ class LVC {
         .append(
           $(
             `<td>
-            <span class="arrow">&#8594;</span>
+            <span class="t-arrow">&#8594;</span>
             <span class="node">${this.drawSvgCircle(
               hashNodeColor(colors)
             )}</span></td>`
@@ -648,7 +648,13 @@ class LVC {
         counts[hashNodeColor(color)] += 1;
       }
     });
-    return Object.values(counts).toSorted();
+    const colors = Object.entries(counts).toSorted(
+      ([_, c1], [__, c2]) => c1 - c2
+    );
+    return [
+      colors.map(([_, count]) => count),
+      colors.map(([color, __]) => color),
+    ];
   }
 
   arePartitiionsSame(partition1, partition2) {

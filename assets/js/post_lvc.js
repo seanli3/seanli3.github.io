@@ -2,6 +2,7 @@ let lvc;
 let topContainerCy;
 let bottomContanerCys = [];
 let colorPartition;
+let nodeColors;
 
 const attachEventListeners = () => {
   $("#search-selection input").click(function (event) {
@@ -49,12 +50,13 @@ const attachEventListeners = () => {
       window.location.reload();
     });
 
-    const startBtn = $("#startBtn");
-    startBtn.parent().show();
-    startBtn.click(function (event) {
+    const downBtn = $("#downBtn");
+    downBtn.show();
+    downBtn.click(function (event) {
       if (lvc.finished) {
         return;
       }
+      downBtn.hide();
       const container = $(".container.local");
       container.show();
       setTimeout(() => {
@@ -81,16 +83,23 @@ const attachEventListeners = () => {
       $("#search-selection button").prop("disabled", true);
       $("#graph-selection ul button").prop("disabled", true);
       $("#graph-selection input").prop("disabled", true);
-      $(event.target).parent().hide();
-      $("#updateBtn").parent().show();
+      // $(event.target).parent().hide();
+      $("#upBtn").show();
       $("#description").html(
-        "<div class='notice--info'><b>Local Vertex Colouring.</b> At this step, we run a graph search (BFS or DFS) rooted at each node (node with red border), each yields a search tree as shown below. There are in total N search trees. We compute a colour for each node in each search tree. So for each node there are N colours. (Try select a node below to see how the colour is computed.</div>"
+        `<div class='notice--info' style='font-size:large !important; margin-top:0 !important; margin-bottom:5px !important;'>
+        <b>Local Vertex Colouring.</b><br/>
+         At this step, we run a graph search (BFS or DFS) rooted at each node (node with red border),
+          each yields a search tree as shown below. There are in total N search trees. 
+         We compute a colour for each node in each search tree. So for each node there are N colours.
+         <br/>
+         </div>`
       );
       $("#description").show();
+      $("#hint").show();
     });
 
-    const updateBtn = $("#updateBtn");
-    updateBtn.click(function (event) {
+    const upBtn = $("#upBtn");
+    upBtn.click(function (event) {
       if (lvc.finished) {
         return;
       }
@@ -108,27 +117,44 @@ const attachEventListeners = () => {
       }, 200);
 
       lvc.addNodeTooltip(cy, aggregatedColorMap);
-      $(event.target).parent().hide();
-      $("#updateBtn").parent().show();
-      startBtn.parent().show();
-      updateBtn.parent().hide();
+      upBtn.hide();
+      downBtn.show();
       topContainerCy = cy;
       $("#description").html(
-        "<div class='notice--info'><b>Update Global Vertex Colours.</b> At this step, we aggregate localized node colours obtained from each graph search, computed a new colour and update each node. (Try select a node from above to see how the colour is computed.</div>"
+        `<div class='notice--info' style='font-size:large !important; margin-top:0 !important; margin-bottom:5px !important;'>
+        <b>Update Global Vertex Colours.</b><br/>
+         At this step, we aggregate localized node colours obtained from each graph search, 
+         computed a new colour and update each node.
+         </div>`
       );
-      const newParition = lvc.getPartition(aggregatedColorMap);
+      const [newParition, newColors] = lvc.getPartition(aggregatedColorMap);
       if (lvc.arePartitiionsSame(colorPartition, newParition)) {
+        downBtn.hide();
         $("#description").append(
           `
-          <div class="notice--danger">
-            The current colour partition of ${JSON.stringify(
-              newParition
-            )} (each number represents a colour count) is the same as the previous one. The algorithm has finished.
+          <div class="notice--danger" style='font-size:large !important; margin-top:0 !important; margin-bottom:5px !important;'>
+            The current colour partition of
+            ${newParition
+              .map(
+                (c, i) => `${c}  <svg height="16" width="16">
+                <circle cx="8" cy="8" r="7" stroke="black" stroke-width="1" fill="${newColors[i]}" />
+              </svg>`
+              )
+              .join(", ")} is the same as the previous 
+             ${colorPartition
+               .map(
+                 (c, i) => `${c}  <svg height="16" width="16">
+                <circle cx="8" cy="8" r="7" stroke="black" stroke-width="1" fill="${nodeColors[i]}" />
+              </svg>`
+               )
+               .join(", ")} 
+              . <b>The algorithm has finished</b>.
           </div>
         `
         );
       }
       colorPartition = newParition;
+      nodeColors = newColors;
     });
   });
 };

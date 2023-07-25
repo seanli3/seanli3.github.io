@@ -6,7 +6,7 @@
 }
 
 .graph-container {
-  width: min(450px, max(300px, 30vw));
+  width: min(300px, max(250px, 25vw));
   margin: 5px;
   aspect-ratio: 1 / 1;
   display: flex;
@@ -16,19 +16,27 @@
   border-radius: 5px;
 }
 
+.control-container {
+  width: 100%;
+  align-items: center;
+  flex-direction: column;
+}
+
 .top-notice-container {
   width: 100%;
   display: flex;
   flex-direction: row;
   justify-content: space-around;
-  margin: 10px;
   vertical-align: center;
 }
 
 .container {
   display: flex;
-  justify-content: center;
-  margin: 10px;
+  justify-content: space-between;
+  align-items: center;
+  &.global {
+    flex-direction: column;
+  }
 }
 
 .container.local {
@@ -45,30 +53,44 @@
   aspect-ratio: 1 / 1;
 }
 
+.btn {
+  font-size: medium !important;
+  &:hover {
+    cursor: pointer;
+    background-image: (linear-gradient(to left, #2d8fe5, #d155b8));
+    transform: scale(1.2);
+    cursor: pointer;
+    &::before,
+    &::after {
+      transform: translateX(300px) skewX(-15deg);
+      transition: 0.7s;
+    }
+  }
+}
+
+li .btn {
+  height: 100px;
+  width: 100px;
+}
+
 button:disabled {
   background-color: gray;
 }
 
-#resetBtn {
-  background-color: red;
-}
-
 #graph-selection {
   margin-bottom: 20px;
-  width: 80%;
-  margin-left: 10%;
-  margin-right: 10%;
 }
 
 #graph-selection ul {
   width: 100%;
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-between;
+  justify-content: flex-start;
 }
 
 #graph-selection li {
   margin: 10px;
+  list-style-type: none; /* Remove bullets */
 }
 
 #graph-selection input {
@@ -86,6 +108,7 @@ button:disabled {
 #search-selection div {
   display: flex;
   flex-direction: row;
+  font-size: large;
 }
 
 #search-selection input {
@@ -132,4 +155,107 @@ table tr td {
   vertical-align: middle;
   padding: 0;
   border-bottom: none;
+}
+
+.arrow {
+  width: 120px;
+  height: 120px;
+  display: inline-block;
+  position: relative;
+  text-align: center;
+  padding: 8px;
+  &:hover {
+    cursor: pointer;
+    background-image: (linear-gradient(to left, #2d8fe5, #d155b8));
+    transform: scale(1.2);
+    cursor: pointer;
+    &::before,
+    &::after {
+      transform: translateX(300px) skewX(-15deg);
+      transition: 0.7s;
+    }
+  }
+
+  &::before {
+    content: "";
+    display: block;
+    width: 30px;
+    height: 30px;
+    top: 50%;
+    left: 50%;
+    border-style: solid;
+    border-color: #000;
+    border-width: 2px 2px 0 0;
+    position: absolute;
+    transform-origin: 50% 50%;
+  }
+
+  &.left::before {
+    transform: rotate(-135deg);
+    margin: -15px 0 0 -10px;
+  }
+  &.up::before {
+    transform: rotate(-45deg);
+    margin: -10px 0 0 -15px;
+  }
+  &.down::before {
+    transform: rotate(135deg);
+    margin: -20px 0 0 -15px;
+  }
+  &.right::before {
+    transform: rotate(45deg);
+    margin: -15px 0 0 -20px;
+  }
+
+  &::after {
+    content: "";
+    display: block;
+    top: 50%;
+    left: 50%;
+    border-style: solid;
+    border-color: #000;
+    position: absolute;
+    transform-origin: 50% 50%;
+  }
+
+  &.left::after {
+    width: 40px;
+    height: 0;
+    border-width: 2px 0 0 0;
+    transform: translate(-14px, -1px);
+  }
+
+  &.up::after {
+    width: 0;
+    height: 40px;
+    border-width: 0 2px 0 0;
+    transform: translate(-1px, -14px);
+  }
+
+  &.down::after {
+    width: 0;
+    height: 40px;
+    border-width: 0 2px 0 0;
+    transform: translate(-1px, -26px);
+  }
+
+  &.right::after {
+    width: 40px;
+    height: 0;
+    border-width: 2px 0 0 0;
+    transform: translate(-26px, -1px);
+  }
+
+  &.circle {
+    background: rgba(233, 233, 180, 0.75);
+    border-radius: 50px;
+  }
+
+  &.debug {
+    outline: 1px solid darkblue;
+
+    &::before {
+      outline: 1px solid red;
+    }
+  }
 }
