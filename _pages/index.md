@@ -8,7 +8,7 @@ author_profile: true
 I am a final-year Ph.D. student in the [Graph Research Lab](https://graphlabanu.github.io/website/) of ANU, led by A/Prof [Qing Wang](https://graphlabanu.github.io/website/team/) and Prof. [Brendan McKay](https://graphlabanu.github.io/website/team/). 
 I am also supervised by Dr. [Dongwoo Kim](https://dongwookim-ml.github.io/) from POSTECH.
 
-My research interests center around two main topics: (1) studying the foundations of geometric deep learning, especially the expressivity, generalizatoin and optimization of graph machine learning; (2) Ex- ploring the novel connections between between mathematical theories (e.g. graph theory) and machine learning to help designing more robust, powerful, and explainable models.
+My research interests center around two main topics: (1) studying the foundations of geometric deep learning, especially the expressivity, generalizatoin and optimization of graph machine learning; (2) Exploring the novel connections between between mathematical theories (e.g. graph theory) and machine learning to help designing more robust, powerful, and explainable models.
 
 In addition to my academic pursuits, I hold the position of Senior Software Engineer at [Data61@CSIRO](https://algorithm.data61.csiro.au/). Prior to commencing my PhD, I had the luck to work with the [StellarGraph](https://www.stellargraph.io/) team, where I contributed to various projects including the [open-source graph machine learning libary](https://www.stellargraph.io/library).
 
