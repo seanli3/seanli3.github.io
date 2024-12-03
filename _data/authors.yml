@@ -8,10 +8,10 @@ Sean Li:
   links:
     - label: "Email"
       icon: "fas fa-fw fa-envelope-square"
-      url: "mailto:shouheng.li@anu.edu.au"
+      url: "mailto:ping@seanli.fyi"
     - label: "Website"
       icon: "fas fa-fw fa-link"
-      url: "https://seanli3.github.io"
+      url: "https://seanli.fyi"
     - label: "Github"
       icon: "fab fa-fw fa-github"
       url: "https://github.com/seanli3/"
