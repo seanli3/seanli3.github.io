@@ -5,30 +5,10 @@ permalink: /
 author_profile: true
 ---
 
-Excited to announce our paper, “Towards Bridging Generalization and Expressivity of Graph Neural Networks”, will be presented at ICLR 2025 in Singapore this week!
 
-We delve into the connection between expressiveness and generalization of Graph Neural Networks:
-- Graph ML models can be generalizable yet powerful at the same time
-- We offer insights to enhance a model's generalization pre-training
-- Findings extend to non-graph ML models as well
+I am a Princial Applied Scientist at Oracle Health & AI, building AI agents to transform the healthcare industry.
 
-Catch us at ICLR:
-📍 Poster Session 5 #175
-🗓 Friday, 25 April
-🕙 10:00 am – 12:30 pm SGT
-🏢 Hall 3 + Hall 2B
-
-Access the paper here: [Paper Link](https://lnkd.in/gWkDYehx)
-Explore the code: [Code Repository](https://lnkd.in/g8He4Kpv)
-
-Grateful for the collaboration with co-authors Floris Geerts, Dongwoo Kim, and the late Qing Wang, a remarkable mentor whose legacy lives on.
-
-Looking forward to engaging discussions on ML and graph machine learning at the event!
-
-
---------------------------------
-
-I am a graduate Ph.D. researcher in the [Graph Research Lab](https://graphlabanu.github.io/website/) of ANU, led by A/Prof [Qing Wang](https://graphlabanu.github.io/website/team/) and Prof. [Brendan McKay](https://graphlabanu.github.io/website/team/). 
+I obtained my PhD from the [Graph Research Lab](https://graphlabanu.github.io/website/) of ANU, led by A/Prof [Qing Wang](https://graphlabanu.github.io/website/team/) and Prof. [Brendan McKay](https://graphlabanu.github.io/website/team/). 
 I am also supervised by Dr. [Dongwoo Kim](https://dongwookim-ml.github.io/) from POSTECH.
 
 My research interests center around two main topics: (1) studying the foundations of geometric deep learning, especially the expressivity, generalization and optimization of graph machine learning; (2) Exploring the novel connections between between mathematical theories (e.g. graph theory) and machine learning to help designing more robust, powerful, and explainable models.
